@@ -1,0 +1,37 @@
+# Optional local stack for the Directus + PostgreSQL mentoring demo.
+# Usage: copy config/.env.example to .env, then: docker compose up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: directus_demo
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: replace-me
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+  directus:
+    image: directus/directus:11
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: "replace-with-random-32-plus-chars-key!!"
+      SECRET: "replace-with-another-random-secret!!"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "replace-me"
+      DB_CLIENT: "pg"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_DATABASE: "directus_demo"
+      DB_USER: "directus"
+      DB_PASSWORD: "replace-me"
+      PUBLIC_URL: "http://localhost:8055"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
